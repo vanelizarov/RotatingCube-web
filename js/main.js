@@ -3,7 +3,7 @@ $(function() {
     var camera;
     var scene;
     var renderer;
-
+    var controls;
 
     function init() {
 
@@ -15,8 +15,9 @@ $(function() {
 
 
         renderer.setSize($(window).width(), $(window).height());
-        renderer.setClearColor(0xFFFFFF);
+        //renderer.setClearColor(0xFFFFFF);
         renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 
         camera.position.set(500, 500, 500);
@@ -27,16 +28,16 @@ $(function() {
         scene.add(axisHelper);
 
 
-        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableZoom = true;
-        // controls.enableDamping = true;
-        // controls.dampingFactor = 0.25;
-        controls.addEventListener('change', render)
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        //controls.addEventListener('change', render) - for using without animate
 
         var planeGeometry = new THREE.PlaneGeometry(500, 500);
         var planeMaterial = new THREE.MeshLambertMaterial({
-            //wireframe: true
-            color: 0xffffff
+            //wireframe: true,
+            color: 0x999999
         });
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x = -Math.PI / 2;
@@ -44,19 +45,29 @@ $(function() {
         scene.add(plane);
 
 
+        // var loader = new THREE.TextureLoader();
+        // loader.load('assets/cryintower.png', function(texture) {
+        //     var material = new THREE.MeshBasicMaterial({
+        //         map: texture,
+        //         color: 0xffffff,
+        //         overdraw: true
+        //     });
+        //
+        // });
+
         var cubeGeometry = new THREE.BoxGeometry(50, 50, 50);
         var cubeMaterial = new THREE.MeshLambertMaterial({
             //wireframe: true,
             color: 0xff00ff
         })
         var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.name = "cube";
         cube.position.set(0, 25, 0);
-        cube.rotation.x = -Math.PI / 2;
         cube.castShadow = true;
         scene.add(cube);
 
 
-        var light = new THREE.SpotLight(0xffffff);
+        var light = new THREE.SpotLight(0xffffff, 0.8);
         light.position.set(200, 200, 0);
         light.castShadow = true;
         scene.add(light);
@@ -75,6 +86,15 @@ $(function() {
 
     });
 
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+
+        var cubeObject = scene.getObjectByName("cube");
+        cubeObject.rotation.y += 0.01;
+
+        render();
+    }
 
     function render() {
         //camera.lookAt(scene.position);
@@ -82,6 +102,6 @@ $(function() {
     }
 
     init();
-    render();
+    animate();
 
 });
